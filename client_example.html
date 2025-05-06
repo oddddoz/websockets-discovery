@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>DUMB EXAMPLE</title>
+	</head>
+	<body>
+		<script type="module">
+			// import de socket io client
+  			import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+			
+			// Selection du body pour y ajouter grossierement 
+			const body = document.querySelector("body");
+
+			// Cette fonction créer un paragraphe et y ajoute le contenu d'un message
+			function displayMessage(msg) {
+				const p = document.createElement('p');
+				const msgText = document.createTextNode(msg.user + ": " + msg.content);
+				p.appendChild(msgText);
+
+				body.appendChild(p);
+			};
+
+			// On se connect au serveur socket io qui tourne sur le port 3000
+			const socket = io("http://localhost:3000");
+
+			// On emet un nouveau message avec un contenu aléatoire
+			// C'est cette fonction que votre formulaire doit déclancher d'une manière ou d'une autre
+			socket.emit('new_message', { user: "antoine", content: "mon message est super! " + Math.random()});
+
+			// Ici on écoute les évenements du serveur
+
+			// Cette evenement est déclanché une fois, à la connexion par le serveur.
+			// Il contient un tableau de messages: se référrer au server.js
+			socket.on("messsage_history", (history) => {
+				history.forEach(msg => displayMessage(msg))	
+			});
+			
+			// Cette evenement est recu par le client pour chaque message que le serveur recoit
+			// msg contient les champs: user, content, et received_at (voir addMessage() dans la class History de server.js)
+			socket.on('message', (msg) => {
+				displayMessage(msg);	
+			});
+		</script>
+		
+	</body>
+</html>
